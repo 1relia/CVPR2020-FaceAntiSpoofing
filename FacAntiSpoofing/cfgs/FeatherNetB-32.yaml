@@ -1,0 +1,13 @@
+common:
+    arch: FeatherNetB
+    workers: 10
+    batch_size: 128
+    epochs: 150
+    policy: "step"
+    lr: 0.01
+    momentum: 0.9
+    weight_decay: 0.0001
+    print_freq: 100
+    every_decay: 50
+    fl_gamma: 3
+#     save_path: checkpoints/feathernetB_bs32

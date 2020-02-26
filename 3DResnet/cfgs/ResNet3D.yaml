@@ -1,0 +1,18 @@
+common:
+    arch: resnet5
+    workers: 4
+    batch_size: 60
+    epochs: 100
+    input_size: 224
+    policy: "step"
+    lr: 0.005
+    momentum: 0.9
+    weight_decay: 0.0001
+    print_freq: 3
+    every_decay: 10
+    fl_gamma: 3
+model:
+    sample_size: 224 # 112也可以试试，毕竟占用显存小
+    sample_duration: 16 # 时间序列的长短，16,32,64都可以跑一下
+    shortcut_type: 'A' # 'A'或者'B'
+
