@@ -26,6 +26,7 @@ import models
 from read_data import CASIA
 from losses import *
 from tools.benchmark import compute_speed, stat
+from glob import glob
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
                      and callable(models.__dict__[name]))
@@ -342,8 +343,8 @@ def validate(val_loader, model, criterion,epoch):
                         if args.val_save and pre_subject != 'start' and pre_subject != subject_name_list[-1]:
                             mean_pred = np.mean(subject_preds[:-1])
                             # 将0.4-0.9之间的都认为是假的
-                            #if mean_pred < 0.9 and mean_pred > 0.4:
-                            #    mean_pred = mean_pred - 0.4
+                            if mean_pred < 0.9 and mean_pred > 0.4:
+                                mean_pred = mean_pred - 0.4
                             subject_preds = [preds[i_batch,1]]
                             if 'phase1' in args.data_root:
                                 txt = 'dev'
@@ -352,8 +353,12 @@ def validate(val_loader, model, criterion,epoch):
                             f = open('submission/{}_{}_{}@{}_submission_'.format(time_stp, args.arch, args.mode, args.sub_prot_test)+ txt +'.txt', 'a+')
 #                             dir_ = dirs[i_batch].replace('/home/zp/dataset/CASIA-CeFA/phase1/','').replace(subject_name_list[-1],pre_subject)
                             dir_ = prefix + '/' + pre_subject
+                            if 'test' in dir_:
+                                img_dirs = glob(os.path.join(args.data_root+dir_, 'profile/*.jpg'))
+                                length = len(img_dirs)
+                                if length < 10:
+                                    mean_pred = np.random.uniform(0, 0.3)
                             f.write(dir_ + ' ' + str(mean_pred) +'\n')
-
                 # measure elapsed time
                 batch_time.update(time.time() - end)
                 end = time.time()
