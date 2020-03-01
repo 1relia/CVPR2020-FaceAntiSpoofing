@@ -12,8 +12,8 @@ from glob import glob
 class CASIA(Dataset):
     def __init__(self, args, transform=None, phase_train=True, data_dir=None,phase_test=False):
         self.data_root = args.data_root
-        image_dir_train_file = self.data_root +'4@'+ args.sub_prot_train + '_train_ref.txt'
-        image_dir_val_file = self.data_root + '4@'+ args.sub_prot_val + '_dev_ref.txt'
+        image_dir_train_file = self.data_root.replace('phase2', 'phase1') +'4@'+ args.sub_prot_train + '_train_ref.txt'
+        image_dir_val_file = self.data_root.replace('phase2', 'phase1') + '4@'+ args.sub_prot_val + '_dev_ref.txt'
         # image_dir_test_file = self.data_root + '4@'+ args.sub_prot_test + '_dev_res.txt'
         if 'phase1' in self.data_root:
             txt = 'dev'
@@ -34,11 +34,13 @@ class CASIA(Dataset):
             if self.phase_test:
                 with open(image_dir_test_file, 'r') as f:
                     self.image_dir_test = f.read().splitlines()
+                print(len(self.image_dir_test))
         except:
             print('can not open files, may be filelist is not exist')
             exit()
         
     def sample(self,label, image_dir_file, sample_duration=64):
+        print(image_dir_file)
         img_dirs = glob(os.path.join(image_dir_file,'profile/*.jpg'))
         length = len(img_dirs)
         samples_dir = []
@@ -60,6 +62,32 @@ class CASIA(Dataset):
         assert len(samples_dir) == sample_duration
         samples_dir = sorted(samples_dir)
         return samples_dir, label
+
+    def test_sample(self, label, image_dir_file, sample_duration=64):
+        #print(image_dir_file)
+        img_dirs = glob(os.path.join(image_dir_file,'profile/*.jpg'))
+        length = len(img_dirs)
+        #print(length)
+        samples_dir = []
+
+        if length > sample_duration:
+            # np.random.shuffle(img_dirs)
+            # samples_dir = img_dirs[:sample_duration]
+            #print(length-sample_duration-1)
+            if length-sample_duration-1 == 0 :
+                start = 0
+            else:
+                start = np.random.randint(length-sample_duration-1)
+            samples_dir = img_dirs[start:start+sample_duration]
+        else:
+            sample_ratio = int(sample_duration/length)
+            for img_dir in img_dirs:
+                samples_dir = samples_dir + [img_dir] * sample_ratio
+            samples_dir = samples_dir + [img_dirs[np.random.randint(length-1)]] * (sample_duration - len(samples_dir))
+        assert len(samples_dir) == sample_duration
+        samples_dir = sorted(samples_dir)
+        return samples_dir, label
+
 
     def __len__(self):
         if self.phase_train:
@@ -94,14 +122,18 @@ class CASIA(Dataset):
         else:
             if self.phase_test:
                 image_dir = self.image_dir_test[idx]
+                image_dir = self.data_root + image_dir
                 label = np.random.randint(0,2,1)
                 label = np.array(label)
             else:
                 image_dir,label = self.image_dir_val[idx].split(' ')
                 image_dir = self.data_root + image_dir
                 label = np.array(int(label))
+        if self.phase_test:
+            samples_dir, label = self.test_sample(label, image_dir, self.sample_duration)
+        else:
+            samples_dir,label = self.sample(label, image_dir, self.sample_duration)
 
-        samples_dir,label = self.sample(label, image_dir, self.sample_duration)
         samples_image = [self.get_img_tensor(img_dir) for img_dir in samples_dir]
         samples = torch.stack(samples_image,0).permute(1, 0, 2, 3) 
         # print(samples.shape) # torch.Size([3, 64, 224, 224])

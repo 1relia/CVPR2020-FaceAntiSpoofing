@@ -12,8 +12,8 @@ from glob import glob
 class CASIA(Dataset):
     def __init__(self, args, transform=None, phase_train=True, data_dir=None,phase_test=False):
         self.data_root = args.data_root
-        image_dir_train_file = self.data_root +'4@'+ args.sub_prot_train + '_train.txt'
-        image_dir_val_file = self.data_root + '4@'+ args.sub_prot_val + '_dev.txt'
+        image_dir_train_file = self.data_root.replace('phase2', 'phase1') +'4@'+ args.sub_prot_train + '_train.txt'
+        image_dir_val_file = self.data_root.replace('phase2', 'phase1') + '4@'+ args.sub_prot_val + '_dev.txt'
         # image_dir_test_file = self.data_root + '4@'+ args.sub_prot_test + '_dev_res.txt'
         if 'phase1' in self.data_root:
             txt = 'dev'

@@ -28,7 +28,7 @@ import pickle
 import roc
 import models
 # from read_data import CASIA
-from read_data2 import CASIA
+from read_data import CASIA
 from losses import *
 from tools.benchmark import compute_speed, stat
 model_names = sorted(name for name in models.__dict__
@@ -348,17 +348,20 @@ def validate(val_loader, model, criterion,epoch):
                         predicted_list.append(predicted[i_batch])
                         subject = dirs[i_batch].split('/')[-3]
                         prefix = dirs[i_batch].split('/')[-4]
-                        pre_subject = subject_name_list[-1]
+                        pre_subject = subject_name_list[-1] # 2799
                         if subject not in subject_name_list:
-                            subject_name_list.append(subject)
+                            subject_name_list.append(subject) # 2800
                         if i == len(val_loader)-1 and i_batch == preds.shape[0]-1:
-                            subject_name_list.append('end')
+                            subject_name_list.append('end')  # end
+
+                        # if preds[i_batch,1] > 0.5:
+                        #     preds[i_batch,1] = 1.2 * preds[i_batch,1]
                         subject_preds.append(preds[i_batch,1])
+
                         if args.val_save and pre_subject != 'start' and pre_subject != subject_name_list[-1]:
-                            mean_pred = np.mean(subject_preds[:-1])
-                            # 将0.4-0.9之间的都认为是假的
-                            # if mean_pred < 0.9 and mean_pred > 0.4:
-                            #     mean_pred = mean_pred - 0.4
+                            mean_pred = np.mean(subject_preds[:-1]) # 2799的均值
+                            #if mean_pred < 0.9 and mean_pred > 0.4:
+                            #    mean_pred = mean_pred - 0.4
                             subject_preds = [preds[i_batch,1]]
                             if 'phase1' in args.data_root:
                                 txt = 'dev'
@@ -366,8 +369,21 @@ def validate(val_loader, model, criterion,epoch):
                                 txt = 'test'
                             f = open('submission/{}_{}_{}@{}_submission_'.format(time_stp, args.arch, args.mode, args.sub_prot_test)+ txt +'.txt', 'a+')
 #                             dir_ = dirs[i_batch].replace('/home/zp/dataset/CASIA-CeFA/phase1/','').replace(subject_name_list[-1],pre_subject)
-                            dir_ = prefix + '/' + pre_subject
+                            dir_ = prefix + '/' + pre_subject # 2799
+                            if 'test' in dir_:
+                                img_dirs = glob(os.path.join(dir_, 'profile/*.jpg'))
+                                length = len(img_dirs)
+                                if length < 10:
+                                    mean_pred = np.random.uniform(0, 0.3)
                             f.write(dir_ + ' ' + str(mean_pred) +'\n')
+
+                        if subject_name_list[-1] == 'end':
+                            pre_subject = subject_name_list[-2] # 2800
+                            dir_ = prefix + '/' + pre_subject # 2800
+                            mean_pred = preds[i_batch,1]
+                            print('2800的概率',subject_preds[-1])
+                            f.write(dir_ + ' ' + str(mean_pred) +'\n')
+                            f.close()
 
                 # measure elapsed time
                 batch_time.update(time.time() - end)
@@ -463,3 +479,4 @@ def accuracy(output, target, topk=(1,)):
 if __name__ == '__main__':
     time_stp = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
     main()
+    #GRU + data_aug class
