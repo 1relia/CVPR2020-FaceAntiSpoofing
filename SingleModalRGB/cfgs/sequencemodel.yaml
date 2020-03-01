@@ -1,0 +1,21 @@
+common:
+    stage1_arch: FeatherNetBNorm
+    stage2_checkpoint: checkpoints/feathernetB-RGB@2_colortrans/_23_best.pth.tar
+    arch: SequenceModel
+    workers: 8
+    batch_size: 32
+    epochs: 100
+    policy: "step"
+    lr: 0.01
+    momentum: 0.9
+    weight_decay: 0.0001
+    print_freq: 10
+    every_decay: 40
+    fl_gamma: 3
+    sample_duration: 16
+stage1_model:
+    norm_type: bn
+    
+
+
+
