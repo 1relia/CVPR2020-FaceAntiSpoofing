@@ -87,6 +87,6 @@ python merge_file_for_final_submission.py
 ## submit
 get the 3Dresnet_submission.txt and Feathernet_submission.txt in 3DResnet/submission/
 ```
-cp /FaceAntiSpoofing/submission/submission.txt /3Dresnet/submission/
+cp /FaceAntiSpoofing/submission/submission.txt /3DResnet/submission/
 python fusion_submission.py
 ```
