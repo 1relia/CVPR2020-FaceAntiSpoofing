@@ -7,7 +7,7 @@ FaceAntiSpoofing use Feathernet to identify true or false
 ## 3D Resnet
 
 change the train model and config in cfgs/3DResnet.yaml<br>
-3 protocols, need 3 commands
+3 protocols, need 3 commands, also dev and test
 
 ### Train
 ```
@@ -47,7 +47,7 @@ python merge_file_for_final_submission.py
 
 ## FaceAntiSpoofing
 change the train model and config in cfgs/FeatherNetNorm.yaml<br>
-3 protocols, need 3 commands
+3 protocols, need 3 commands, also dev and test
 
 ### Train
 ```
